@@ -21,15 +21,15 @@ public class KeyListener implements NativeKeyListener {
     private List<String> _comboKeys = new ArrayList<String>();
     private boolean _wasComboPressed = false;
     private boolean _isTyping = false;
-    private HashMap<String, String> _snippets;
+    private SnippetLibrary _snippets;
     private Robot _robot;
 
 
-    public KeyListener(HashMap<String, String> snippets) throws AWTException {
+    public KeyListener(SnippetLibrary snippets) throws AWTException {
         this(snippets, null);
     }
 
-    public KeyListener(HashMap<String, String> snippets, List<String> comboKeys) throws AWTException {
+    public KeyListener(SnippetLibrary snippets, List<String> comboKeys) throws AWTException {
         _snippets = snippets;
         _robot = new Robot();
 
@@ -48,16 +48,17 @@ public class KeyListener implements NativeKeyListener {
         String key = NativeKeyEvent.getKeyText(e.getKeyCode());
 
         if (_wasComboPressed) {
-            if (_snippets.containsKey(key)) {
+            String snippet = _snippets.getSnippet(key);
+            if (snippet != null) {
                 _isTyping = true;
-                //_robot.keyPress(KeyEvent.VK_BACK_SPACE);
-                //_robot.keyRelease(KeyEvent.VK_BACK_SPACE);
-                type(_snippets.get(key));
+                _robot.keyPress(KeyEvent.VK_BACK_SPACE);
+                _robot.keyRelease(KeyEvent.VK_BACK_SPACE);
+                type(_snippets.getSnippet(key));
                 _isTyping = false;
                 _wasComboPressed = false;
-                System.out.println("Sent snippet: " + key + " --> " + _snippets.get(key));
+                System.out.println("Sent snippet: " + key + " --> " + snippet);
             } else {
-                System.out.println("No snippet for " + key);
+                System.out.println("No snippet for: " + key);
             }
         }
 
@@ -187,9 +188,9 @@ public class KeyListener implements NativeKeyListener {
             case '\'': doType(VK_QUOTE); break;
             case '"': doType(VK_QUOTEDBL); break;
             case ',': doType(VK_COMMA); break;
-            case '<': doType(VK_LESS); break;
+            case '<': doType(VK_SHIFT, VK_COMMA); break;
             case '.': doType(VK_PERIOD); break;
-            case '>': doType(VK_GREATER); break;
+            case '>': doType(VK_SHIFT, VK_PERIOD); break;
             case '/': doType(VK_SLASH); break;
             case '?': doType(VK_SHIFT, VK_SLASH); break;
             case ' ': doType(VK_SPACE); break;

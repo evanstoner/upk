@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 public class UPK {
 
-    private static HashMap<String, String> _snippets = new HashMap<String, String>();
+    private static SnippetLibrary _snippets = new SnippetLibrary();
 
     public static void main(String[] args) throws AWTException {
         try {
@@ -27,10 +27,10 @@ public class UPK {
             System.exit(1);
         }
 
-        _snippets.put("A","816 Tavernier Cir NE");
-        _snippets.put("E", "e.l.stoner@gmail.com");
-        _snippets.put("N", "Evan Stoner");
-        _snippets.put("S", "~!@#$%^&*()_+");
+        _snippets.addSnippet("A","816 Tavernier Cir NE");
+        _snippets.addSnippet("E", "e.l.stoner@gmail.com");
+        _snippets.addSnippet("N", "Evan Stoner");
+        _snippets.addSnippet("S", "~!@#$%^&*()_+");
 
         GlobalScreen.getInstance().addNativeKeyListener(new KeyListener(_snippets));
         System.out.println("UPK is running!");
