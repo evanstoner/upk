@@ -12,7 +12,6 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import static java.awt.event.KeyEvent.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class KeyListener implements NativeKeyListener {
@@ -48,12 +47,12 @@ public class KeyListener implements NativeKeyListener {
         String key = NativeKeyEvent.getKeyText(e.getKeyCode());
 
         if (_wasComboPressed) {
-            String snippet = _snippets.getSnippet(key);
+            String snippet = _snippets.get(key);
             if (snippet != null) {
                 _isTyping = true;
                 _robot.keyPress(KeyEvent.VK_BACK_SPACE);
                 _robot.keyRelease(KeyEvent.VK_BACK_SPACE);
-                type(_snippets.getSnippet(key));
+                type(_snippets.get(key));
                 _isTyping = false;
                 _wasComboPressed = false;
                 System.out.println("Sent snippet: " + key + " --> " + snippet);
