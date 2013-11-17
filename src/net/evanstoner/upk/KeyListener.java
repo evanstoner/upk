@@ -19,10 +19,10 @@ public class KeyListener implements NativeKeyListener {
     private List<String> _keys = new ArrayList<String>();
     private List<String> _comboKeys = new ArrayList<String>();
     private boolean _wasComboPressed = false;
-    private boolean _isTyping = false;
+    private boolean _isRobotTyping = false;
     private SnippetLibrary _snippets;
     private Robot _robot;
-
+    private KeyboardForm _keyboardForm;
 
     public KeyListener(SnippetLibrary snippets) throws AWTException {
         this(snippets, null);
@@ -39,21 +39,27 @@ public class KeyListener implements NativeKeyListener {
             _comboKeys.add("Shift");
             _comboKeys.add("K");
         }
+
+        _keyboardForm = new KeyboardForm(_snippets);
     }
 
     public void nativeKeyPressed(NativeKeyEvent e) {
-        if (_isTyping) return;
+        if (_isRobotTyping) return;
 
         String key = NativeKeyEvent.getKeyText(e.getKeyCode());
 
         if (_wasComboPressed) {
+            _keyboardForm.hide();
             String snippet = _snippets.get(key);
             if (snippet != null) {
-                _isTyping = true;
-                _robot.keyPress(KeyEvent.VK_BACK_SPACE);
-                _robot.keyRelease(KeyEvent.VK_BACK_SPACE);
+                _isRobotTyping = true;
+                if (!_keyboardForm.isVisible()) {
+                    // if the focus was on the target screen, we need to delete the character that is normally typed
+                    _robot.keyPress(KeyEvent.VK_BACK_SPACE);
+                    _robot.keyRelease(KeyEvent.VK_BACK_SPACE);
+                }
                 type(_snippets.get(key));
-                _isTyping = false;
+                _isRobotTyping = false;
                 _wasComboPressed = false;
                 System.out.println("Sent snippet: " + key + " --> " + snippet);
             } else {
@@ -63,7 +69,9 @@ public class KeyListener implements NativeKeyListener {
 
         _keys.add(key);
 
-        _wasComboPressed = areComboKeysPressed();
+        if (_wasComboPressed = areComboKeysPressed()) {
+            _keyboardForm.show();
+        }
     }
 
     public void nativeKeyReleased(NativeKeyEvent e) {
