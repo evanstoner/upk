@@ -16,7 +16,8 @@ import java.util.Scanner;
 public class UPK {
 
     private static SnippetLibrary _snippets = new SnippetLibrary();
-    private static Scanner s;
+    private static KeyboardForm _keyboardForm;
+    private static Scanner _scanner;
 
     private static final String SNIPPETS_FILE = "snippets";
     private static final String EXIT_FLAG = "xx";
@@ -40,10 +41,13 @@ public class UPK {
         }
         System.out.println("Snippets found: " + _snippets.size());
 
-        GlobalScreen.getInstance().addNativeKeyListener(new KeyListener(_snippets));
+        _keyboardForm = new KeyboardForm(_snippets);
+        _keyboardForm.show();
+        _keyboardForm.hide();
+        GlobalScreen.getInstance().addNativeKeyListener(new KeyListener(_snippets, _keyboardForm));
         System.out.println("UPK is running!");
 
-        s = new Scanner(System.in);
+        _scanner = new Scanner(System.in);
 
         while (true) {
             System.out.print(
@@ -55,7 +59,7 @@ public class UPK {
                     "x - exit\n" +
                     "Choice: "
             );
-            String choice = s.nextLine();
+            String choice = _scanner.nextLine();
             System.out.println();
 
             if (choice.equals("s")) {
@@ -66,8 +70,10 @@ public class UPK {
                 deleteSnippet();
             } else if (choice.equals("c")) {
                 clearSnippets();
-            } else if (choice.equals("x")) {
+            } else if (choice.equals("x") || choice.equals(EXIT_FLAG)) {
+                System.out.println("Shutting down...");
                 GlobalScreen.unregisterNativeHook();
+                _keyboardForm.dispose();
                 break;
             }
 
@@ -88,7 +94,7 @@ public class UPK {
 
         while (key == null) {
             System.out.print(prompt + ": ");
-            key = s.nextLine();
+            key = _scanner.nextLine();
 
             if (key.equals(EXIT_FLAG)) {
                 return EXIT_FLAG;
@@ -135,7 +141,7 @@ public class UPK {
 
         while (snippet == null) {
             System.out.print("Snippet: ");
-            snippet = s.nextLine();
+            snippet = _scanner.nextLine();
 
             if (snippet.equals(EXIT_FLAG)) {
                 return;
@@ -168,7 +174,7 @@ public class UPK {
     public static void clearSnippets() {
         String yn;
         System.out.print("Are you sure you want to clear all snippets? This is irreversible (y/n): ");
-        yn = s.nextLine();
+        yn = _scanner.nextLine();
         if (yn.equals("y")) {
             _snippets.clear();
             System.out.println("Snippets cleared.");

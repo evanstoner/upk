@@ -24,11 +24,11 @@ public class KeyListener implements NativeKeyListener {
     private Robot _robot;
     private KeyboardForm _keyboardForm;
 
-    public KeyListener(SnippetLibrary snippets) throws AWTException {
-        this(snippets, null);
+    public KeyListener(SnippetLibrary snippets, KeyboardForm keyboardForm) throws AWTException {
+        this(snippets, null, keyboardForm);
     }
 
-    public KeyListener(SnippetLibrary snippets, List<String> comboKeys) throws AWTException {
+    public KeyListener(SnippetLibrary snippets, List<String> comboKeys, KeyboardForm keyboardForm) throws AWTException {
         _snippets = snippets;
         _robot = new Robot();
 
@@ -40,11 +40,17 @@ public class KeyListener implements NativeKeyListener {
             _comboKeys.add("K");
         }
 
-        _keyboardForm = new KeyboardForm(_snippets);
+        _keyboardForm = keyboardForm;
     }
 
     public void nativeKeyPressed(NativeKeyEvent e) {
         if (_isRobotTyping) return;
+
+        if (e.getKeyCode() == VK_ESCAPE) {
+            _keyboardForm.hide();
+            _wasComboPressed = false;
+            return;
+        }
 
         String key = NativeKeyEvent.getKeyText(e.getKeyCode());
 
@@ -53,17 +59,9 @@ public class KeyListener implements NativeKeyListener {
             String snippet = _snippets.get(key);
             if (snippet != null) {
                 _isRobotTyping = true;
-                if (!_keyboardForm.isVisible()) {
-                    // if the focus was on the target screen, we need to delete the character that is normally typed
-                    _robot.keyPress(KeyEvent.VK_BACK_SPACE);
-                    _robot.keyRelease(KeyEvent.VK_BACK_SPACE);
-                }
                 type(_snippets.get(key));
                 _isRobotTyping = false;
                 _wasComboPressed = false;
-                System.out.println("Sent snippet: " + key + " --> " + snippet);
-            } else {
-                System.out.println("No snippet for: " + key);
             }
         }
 

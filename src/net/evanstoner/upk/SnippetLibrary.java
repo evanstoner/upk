@@ -14,6 +14,7 @@ import java.util.*;
 public class SnippetLibrary {
 
     private Map<String, String> _snippets = new HashMap<String, String>();
+    private ArrayList<SnippetLibraryObserver> _observers = new ArrayList<SnippetLibraryObserver>();
 
     /**
      * Adds a snippet to the library
@@ -21,7 +22,12 @@ public class SnippetLibrary {
      * @param snippet The snippet to paste
      */
     public void put(String key, String snippet) {
-        _snippets.put(key.toUpperCase(), snippet);
+        key = key.toUpperCase();
+        _snippets.put(key, snippet);
+
+        for (SnippetLibraryObserver observer : _observers) {
+            observer.didPutSnippet(key, snippet);
+        }
     }
 
     /**
@@ -38,11 +44,22 @@ public class SnippetLibrary {
      * @param key The key to remove
      */
     public void remove(String key) {
+        key = key.toUpperCase();
+        String snippet = _snippets.get(key);
         _snippets.remove(key.toUpperCase());
+
+        for (SnippetLibraryObserver observer : _observers) {
+            observer.didRemoveSnippet(key, snippet);
+        }
     }
 
     public void clear() {
+        Map<String, String> snippets = _snippets;
         _snippets.clear();
+
+        for (SnippetLibraryObserver observer : _observers) {
+            observer.didClearSnippets(snippets);
+        }
     }
 
     public Set<String> keySet() {
@@ -73,11 +90,24 @@ public class SnippetLibrary {
         return count;
     }
 
+    /**
+     * Saves the snippets to the specified file
+     * @param path
+     * @throws IOException
+     */
     public void save(String path) throws IOException {
         FileWriter w = new FileWriter(path);
         for (String key : keySet()) {
             w.write(key + "||" + get(key) + "\n");
         }
         w.close();
+    }
+
+    public void registerObserver(SnippetLibraryObserver observer) {
+        _observers.add(observer);
+    }
+
+    public void unregisterObserver(SnippetLibraryObserver observer) {
+        _observers.remove(observer);
     }
 }
