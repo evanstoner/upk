@@ -44,7 +44,14 @@ public class UPK {
         _keyboardForm = new KeyboardForm(_snippets);
         _keyboardForm.show();
         _keyboardForm.hide();
-        GlobalScreen.getInstance().addNativeKeyListener(new KeyListener(_snippets, _keyboardForm));
+
+        try {
+            GlobalScreen.getInstance().addNativeKeyListener(new KeyListener(_snippets, _keyboardForm));
+        } catch (AWTException ex) {
+            System.err.println("There was a problem registering the key hook.");
+            System.err.println(ex.getMessage());
+            System.exit(1);
+        }
         System.out.println("UPK is running!");
 
         _scanner = new Scanner(System.in);
